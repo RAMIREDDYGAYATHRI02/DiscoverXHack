@@ -54,8 +54,9 @@ Open `http://localhost:5173`. Vite forwards `/api` requests to Django. The Djang
 | `MONGODB_DATABASE` | Database name, defaults to `shiftswap` |
 | `DJANGO_SECRET_KEY` | Django secret for deployment |
 | `DJANGO_DEBUG` | `true` for local development; set `false` in production |
-| `DJANGO_ALLOWED_HOSTS` | Comma-separated Django hostnames; include the assigned Render hostname |
+| `DJANGO_ALLOWED_HOSTS` | Comma-separated Django hostnames; include the deployed API hostname(s) |
 | `CORS_ALLOWED_ORIGINS` | Comma-separated browser origins allowed to call the API |
+| `FRONTEND_URL` | Optional destination for the Django root redirect; defaults to the local Vite URL and is not needed for Vercel Services routing |
 
 ## REST API
 
@@ -105,9 +106,35 @@ npm run build
 
 ## Deployment
 
-- **Vercel/Netlify frontend:** set the project root to `frontend`, build with `npm run build`, and publish `dist`. Configure the frontend API base/proxy to point to the Render API in production (the development Vite proxy is local only).
+### Vercel Services (single deployment and domain)
+
+The root `vercel.json` defines two services. Set the Vercel project Framework Preset to **Services** and keep the repository root as the project root. Vercel Services availability is controlled by the current Vercel account/feature access.
+
+| Service | Root | Entrypoint | Public routing |
+| --- | --- | --- | --- |
+| `app` | `.` | `shiftswap_project.wsgi:application` | `/api/...` |
+| `frontend` | `frontend` | Vite auto-detected | `/` and all non-API paths |
+
+The `/api/(.*)` rewrite is intentionally before the frontend catch-all. Both services have public paths; there are no internal-only services and no service bindings. The browser uses relative `/api/...` requests, so it stays on the shared deployment origin and does not need a cross-service binding or `VITE_API_BASE_URL`.
+
+Configure these variables for the Django `app` service only (never expose them as `VITE_` variables):
+
+| Variable | Required value |
+| --- | --- |
+| `DJANGO_SECRET_KEY` | A new, long random production secret |
+| `DJANGO_DEBUG` | `false` |
+| `DJANGO_ALLOWED_HOSTS` | The assigned Vercel deployment hostname(s), plus any custom domain(s) |
+| `MONGODB_URI` | MongoDB Atlas connection URI for a dedicated database user |
+| `MONGODB_DATABASE` | Production database name (for example `shiftswap`) |
+
+The app uses a same-origin API on Vercel, so `CORS_ALLOWED_ORIGINS` is not required for this deployment. It remains available for local development or an independently hosted frontend. Do not seed on every request or build; run `python manage.py seed_data` only when intentionally initializing an empty production database, using a controlled one-off environment with Atlas access.
+
+The `frontend` service needs no environment variables for same-domain API requests. Do not add MongoDB credentials, Django secrets, or any other server-only variables to Vercel frontend build variables. For a separately hosted backend, set `VITE_API_BASE_URL` to its public origin as a frontend build variable and configure the backend CORS origin accordingly.
+
+### Separate Netlify frontend and Render backend
+
+- **Netlify frontend:** set the base directory to `frontend`, build with `npm run build`, and publish `dist`. Set `VITE_API_BASE_URL` to the public Render API origin as a Netlify build variable.
 - **Render backend:** deploy the repository as a Python web service, install `requirements.txt`, and run `gunicorn shiftswap_project.wsgi:application --bind 0.0.0.0:$PORT`. Configure `MONGODB_URI`, `MONGODB_DATABASE`, `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=false`, `DJANGO_ALLOWED_HOSTS`, and `CORS_ALLOWED_ORIGINS` in Render's environment settings. Run `python manage.py seed_data` once after the service can reach MongoDB. Use MongoDB Atlas with a narrow network allowlist and a dedicated database user.
-- Set the frontend's production API origin through a Vite build variable and configure the API CORS origin to match the deployed site.
 
 ## Assumptions and limitations
 

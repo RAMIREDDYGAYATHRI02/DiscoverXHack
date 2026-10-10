@@ -37,8 +37,7 @@ REST_FRAMEWORK = {
 
 MONGODB_URI = os.getenv("MONGODB_URI", "mongodb://127.0.0.1:27017")
 MONGODB_DATABASE = os.getenv("MONGODB_DATABASE", "shiftswap")
-# FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173/")
-FRONTEND_URL = "http://localhost:5173/"
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173/")
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",")
