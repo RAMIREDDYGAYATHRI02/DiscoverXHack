@@ -1,5 +1,22 @@
 # ShiftSwap — CityCare Clinic Shift Management System
 
+1. Dashboard — Staff Selection
+The landing page allows staff members and managers to select their profiles and access the appropriate workspace.
+<img width="1920" height="1080" alt="Screenshot (267)" src="https://github.com/user-attachments/assets/ada40bab-9104-4037-8c50-3ea168a1cd3b" />
+
+2. Manager Dashboard
+The manager dashboard provides an overview of clinic coverage, pending claims, team members, and roster activity.
+<img width="1920" height="1080" alt="Screenshot (268)" src="https://github.com/user-attachments/assets/25f84809-52be-470c-b587-3bb4ecc9bed9" />
+
+3. Staff Dashboard
+The staff dashboard displays personal shift schedules, available shift coverage, and team activity.
+<img width="1920" height="1080" alt="Screenshot (269)" src="https://github.com/user-attachments/assets/2a8f1852-f992-4ea6-8cd2-db9b8827d44d" />
+
+4. MongoDB Database
+The MongoDB Atlas database stores the ShiftSwap application's data.
+<img width="1920" height="1080" alt="Screenshot (263)" src="https://github.com/user-attachments/assets/6397f9f7-0682-432a-9c6e-ebe414504565" />
+
+
 A responsive shift exchange dashboard for the CityCare Clinic roster. Staff can post a shift, review and claim eligible open listings, or release a pending claim. Managers can review requests, recheck the roster rules, and approve or reject. A shared activity history records completed actions and rule-based claim refusals.
 
 ## Stack
